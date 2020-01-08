@@ -1,0 +1,3 @@
+/home/alexis/CLionProjects/LexAndParsePascal/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/alexis/CLionProjects/LexAndParsePascal/cmake-build-debug/CMakeFiles/lexer.dir
+/home/alexis/CLionProjects/LexAndParsePascal/cmake-build-debug/CMakeFiles/edit_cache.dir

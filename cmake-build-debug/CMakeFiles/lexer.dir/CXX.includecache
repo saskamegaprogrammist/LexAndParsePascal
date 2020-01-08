@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.cpp
+Parser.h
+/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.h
+
+/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.h
+vector
+-
+../Token/Token.h
+/home/alexis/CLionProjects/LexAndParsePascal/Token/Token.h
+
+/home/alexis/CLionProjects/LexAndParsePascal/Token/Token.h
+string
+-
+
