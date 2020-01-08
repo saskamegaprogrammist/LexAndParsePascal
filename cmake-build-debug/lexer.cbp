@@ -84,6 +84,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/alexis/CLionProjects/LexAndParsePascal/Ident/Ident.cpp">
+			<Option target="lexer"/>
+		</Unit>
+		<Unit filename="/home/alexis/CLionProjects/LexAndParsePascal/Ident/Ident.h">
+			<Option target="lexer"/>
+		</Unit>
 		<Unit filename="/home/alexis/CLionProjects/LexAndParsePascal/Lexer/Lexer.cpp">
 			<Option target="lexer"/>
 		</Unit>

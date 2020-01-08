@@ -4,6 +4,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/lexer.dir/Token/Token.cpp.o"
   "CMakeFiles/lexer.dir/Parser/Parser.cpp.o"
   "CMakeFiles/lexer.dir/ParseToken/ParseToken.cpp.o"
+  "CMakeFiles/lexer.dir/Ident/Ident.cpp.o"
   "lexer.pdb"
   "lexer"
 )

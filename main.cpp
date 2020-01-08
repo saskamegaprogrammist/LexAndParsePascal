@@ -1,25 +1,19 @@
 #include <iostream>
 #include "Lexer/Lexer.h"
+#include "Parser/Parser.h"
 #include "Token/Token.h"
 using namespace std;
 
 const string testProgramm = "program HelloWorld;\n"
                             "var\n"
-                            "        n, i: integer;\n"
-                            "begin\n"
-                            "        n := 3;\n"
-                            "n *= 3;\n"
-                            "writeln(n);\n"
-                            "for i:= 1 to 10 do\n"
-                            "begin\n"
-                            "n:= +2 - (+2 - -1));\n"
-                            "        writeln(i);\n"
-                            "end;\n"
-                            "end.";
+                            "        n: string ;\n"
+                            "        m: char;"
+                            "begin\n";
 
 
 int main() {
     Lexer lexer;
+    Parser parser;
     lexer.SetProgramm(testProgramm);
     if (lexer.Normalize()) {
         vector<char> norm = lexer.GetNormalizedVector();
@@ -40,7 +34,13 @@ int main() {
         for (int i = 0; i < operations.size(); i++) {
             std::cout << operations[i].GetValue() << " " << operations[i].GetNumber() << std::endl;
         }
+        vector<Token> strings = lexer.GetStrings();
+        for (int i = 0; i < strings.size(); i++) {
+            std::cout << strings[i].GetValue() << " " << strings[i].GetNumber() << std::endl;
+        }
     }
+    parser.SetTokens(lexer.GetParseTokens());
+    parser.Parse();
     return 0;
 }
 

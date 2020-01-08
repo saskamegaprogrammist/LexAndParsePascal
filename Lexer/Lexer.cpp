@@ -24,6 +24,8 @@ const char LASTLETTER= 122;
 const char FIRSTCAPLETTER = 65;
 const char LASTCAPLETTER= 90;
 const char UNDERLINE = 95;
+const char QUOTE = 39;
+const vector<string> BOOLEANS = {"true", "false"};
 const vector<string> KEYWORDS = {"program"};
 const vector<string> OPERATIONS = {"+", "-", "*", "/", "(", ")", "@", "not", "^", "div", "mod", "and", "shl", "shr", "or", "xor", "=",
                                    ">", "<", "<>", "<=", ">=", "as", "is", "in", "new"};
@@ -152,6 +154,57 @@ bool Lexer::CheckIdent(int index) {
     parseTokens.push_back(token_p);
     currentIndex = i;
     return true;
+}
+
+bool Lexer::CheckString(int index) {
+    string string = "";
+    string += normalizedVector[index];
+    int i = index + 1;
+    for (; i < normalizedVector.size(); i++) {
+        if (normalizedVector[i]!=QUOTE) {
+            string += normalizedVector[i];
+        } else {
+            string += normalizedVector[i];
+            i++;
+            break;
+        }
+    }
+    if (i == normalizedVector.size()) {
+        return false;
+    } else {
+        Token token = Token(string, strings.size());
+        strings.push_back(token);
+        Token token_n = Token("STRING", strings.size()-1);
+        tokens.push_back(token_n);
+        ParseToken token_p = ParseToken(string, "STRING");
+        parseTokens.push_back(token_p);
+        currentIndex = i;
+        return true;
+    }
+}
+
+bool Lexer::CheckBoolean(int index) {
+    string boolean = "";
+    boolean += normalizedVector[index];
+    int i = index + 1;
+    for (; i < normalizedVector.size(); i++) {
+        if (CheckLetter(normalizedVector[i])) {
+            boolean += normalizedVector[i];
+        } else break;
+    }
+
+    if (find(BOOLEANS.begin(), BOOLEANS.end(), boolean) != BOOLEANS.end()) {
+        Token token = Token(boolean, booleans.size());
+        booleans.push_back(token);
+        Token token_n = Token("BOOLEAN", booleans.size()-1);
+        tokens.push_back(token_n);
+        ParseToken token_p = ParseToken(boolean, "BOOLEAN");
+        parseTokens.push_back(token_p);
+        currentIndex = i;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool Lexer::CheckNumber(int index) {
@@ -326,10 +379,12 @@ bool Lexer::Tokenize() {
                 if (CheckLetter(normalizedVector[i])) {
                     if (!CheckKeyword(i)){
                         if (!CheckType(i)) {
-                            if (!CheckOperator(i)) {
-                                if (!CheckOperation(i)) {
-                                    if(!CheckIdent(i)){
-                                        throw "error while tokenizing";
+                            if (!CheckBoolean(i)) {
+                                if (!CheckOperator(i)) {
+                                    if (!CheckOperation(i)) {
+                                        if (!CheckIdent(i)) {
+                                            throw "error while tokenizing";
+                                        }
                                     }
                                 }
                             }
@@ -346,9 +401,15 @@ bool Lexer::Tokenize() {
                                 throw "error while tokenizing";
                             }
                         } else {
-                            if (!CheckOperator(i)) {
-                                if (!CheckOperation(i)) {
+                            if (normalizedVector[i] == QUOTE) {
+                                if (!CheckString(i)) {
                                     throw "error while tokenizing";
+                                }
+                            } else {
+                                if (!CheckOperator(i)) {
+                                    if (!CheckOperation(i)) {
+                                        throw "error while tokenizing";
+                                    }
                                 }
                             }
                         }
@@ -398,4 +459,16 @@ vector<Token> Lexer::GetOperators() {
 
 vector<Token> Lexer::GetNumbers() {
     return this->numbers;
+}
+
+vector<Token> Lexer::GetStrings() {
+    return this->strings;
+}
+
+vector<Token> Lexer::GetBooleans() {
+    return this->booleans;
+}
+
+vector<Token> Lexer::GetKeywords() {
+    return this->keywords;
 }

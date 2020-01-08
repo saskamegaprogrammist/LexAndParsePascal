@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "../ParseToken/ParseToken.h"
+#include "../Ident/Ident.h"
 
 using namespace std;
 
@@ -14,19 +15,27 @@ class Parser {
 private:
     int currentIndex;
     vector<ParseToken> tokens;
+    vector<Ident> idents;
     bool ParseA();
     bool ParseA1();
     bool ParseB();
     bool ParseB1();
     bool ParseB2();
-    bool ParseB3();
-    bool ParseB4();
     bool ParseC();
-    void CreateException();
+    bool ParseC1();
+    bool ParseD();
+    bool ParseE();
+    bool ParseE1();
+    bool ParseE2();
+    bool ParseE3();
+    bool ParseE4();
+    void CreateException(int& index);
+    void CreateIdent(ParseToken& ident);
 
 public:
     Parser() = default;
     void SetTokens(vector<ParseToken> tokens);
+    void GetIdents();
     bool Parse();
 };
 

@@ -123,6 +123,33 @@ lexer/fast:
 	$(MAKE) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/build
 .PHONY : lexer/fast
 
+Ident/Ident.o: Ident/Ident.cpp.o
+
+.PHONY : Ident/Ident.o
+
+# target to build an object file
+Ident/Ident.cpp.o:
+	$(MAKE) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/Ident/Ident.cpp.o
+.PHONY : Ident/Ident.cpp.o
+
+Ident/Ident.i: Ident/Ident.cpp.i
+
+.PHONY : Ident/Ident.i
+
+# target to preprocess a source file
+Ident/Ident.cpp.i:
+	$(MAKE) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/Ident/Ident.cpp.i
+.PHONY : Ident/Ident.cpp.i
+
+Ident/Ident.s: Ident/Ident.cpp.s
+
+.PHONY : Ident/Ident.s
+
+# target to generate assembly for a file
+Ident/Ident.cpp.s:
+	$(MAKE) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/Ident/Ident.cpp.s
+.PHONY : Ident/Ident.cpp.s
+
 Lexer/Lexer.o: Lexer/Lexer.cpp.o
 
 .PHONY : Lexer/Lexer.o
@@ -267,6 +294,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... lexer"
 	@echo "... edit_cache"
+	@echo "... Ident/Ident.o"
+	@echo "... Ident/Ident.i"
+	@echo "... Ident/Ident.s"
 	@echo "... Lexer/Lexer.o"
 	@echo "... Lexer/Lexer.i"
 	@echo "... Lexer/Lexer.s"

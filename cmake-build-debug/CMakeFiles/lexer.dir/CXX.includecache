@@ -6,17 +6,49 @@
 
 #IncludeRegexTransform: 
 
-/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.cpp
-Parser.h
-/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.h
+/home/alexis/CLionProjects/LexAndParsePascal/Ident/Ident.h
+string
+-
 
-/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.h
+/home/alexis/CLionProjects/LexAndParsePascal/Lexer/Lexer.h
 vector
 -
 ../Token/Token.h
 /home/alexis/CLionProjects/LexAndParsePascal/Token/Token.h
+../ParseToken/ParseToken.h
+/home/alexis/CLionProjects/LexAndParsePascal/ParseToken/ParseToken.h
+
+/home/alexis/CLionProjects/LexAndParsePascal/ParseToken/ParseToken.h
+string
+-
+
+/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.cpp
+Parser.h
+/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.h
+exception
+-
+iostream
+-
+
+/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.h
+vector
+-
+../ParseToken/ParseToken.h
+/home/alexis/CLionProjects/LexAndParsePascal/ParseToken/ParseToken.h
+../Ident/Ident.h
+/home/alexis/CLionProjects/LexAndParsePascal/Ident/Ident.h
 
 /home/alexis/CLionProjects/LexAndParsePascal/Token/Token.h
 string
 -
+
+/home/alexis/CLionProjects/LexAndParsePascal/main.cpp
+iostream
+-
+Lexer/Lexer.h
+/home/alexis/CLionProjects/LexAndParsePascal/Lexer/Lexer.h
+Parser/Parser.h
+/home/alexis/CLionProjects/LexAndParsePascal/Parser/Parser.h
+Token/Token.h
+/home/alexis/CLionProjects/LexAndParsePascal/Token/Token.h
 

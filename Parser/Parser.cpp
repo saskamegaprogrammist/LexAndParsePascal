@@ -4,6 +4,7 @@
 
 #include "Parser.h"
 
+
 #include <exception>
 #include <iostream>
 
@@ -12,35 +13,107 @@
 // A : <program> <IDENT> <;> A1 | A1
 // A1 : B | C
 // B : <var> <IDENT> B1
-// B1 : <,> <IDENT> B3 | B2
-// B2: <:=> <VALUE> <;> B4 | <:> <TYPE> <:=> <VALUE> <;> B4
-// B3:  <,> <IDENT> B3 | <:> <TYPE> <;> B4
-// B4: <IDENT> B1 | C
-// C: <begin> <end> Z
-// Z: . | eps
+// B1 : <,> <IDENT> B1 | <:> <TYPE> <;> B2
+// B2 :  <IDENT> B1 | A1
+// C : <begin> C1 <end> <.>
+// C1 : <begin> C1 <end> <;> | D
+// D : <IDENT> <:=> E <;> D | eps
+// E : E1 E2
+// E1 : E3 E4
+// E2 : <+> E1 E2 | <-> E1 E2 | eps
+// E3 : + E3 | - E3 | (E) | <VALUE> | <IDENT>
+// E4 : <*> E3 E4 | </> E3 E4 | <mod> E3 E4 | <div> E3 E4 | eps
 
-void Parser::CreateException() {
+//<E> ::= <T> <E’>.
+//<E’> ::= + <T> <E’> | - <T> <E’> | .
+//<T> ::= <F> <T’>.
+//<T’> ::= * <F> <T’> | / <F> <T’> | .
+//<F> ::= <number> | <var> | ( <E> ) | - <F>.
+
+
+
+
+const vector<string> NUMTYPES = {"shortint", "smallint", "integer", "longint", "int64",  "real",
+                              "double", "decimal"};
+
+void Parser::CreateException(int &index) {
+    currentIndex = index;
     throw "error while parsing";
+}
+
+void Parser::CreateIdent(ParseToken &token) {
+    Ident ident = Ident(token.GetValue(), idents.size());
+    idents.push_back(ident);
+}
+
+bool Parser::ParseD() {
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetType() == "IDENT") {
+
+    }
+    else return true;
+}
+
+bool Parser::ParseC1() {
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetValue() == "begin") {
+        currentIndex = index;
+        if (!ParseC1()) CreateException(currentIndex);
+        index = currentIndex;
+        if (tokens[index].GetValue() == "end") {
+            index++;
+            if (tokens[index].GetValue() == ";") {
+                return true;
+            } else {
+                CreateException(index);
+            }
+        } else {
+            CreateException(index);
+        }
+    } else {
+        if (!ParseD()) CreateException(currentIndex);
+        else {
+            return true;
+        }
+    }
 }
 
 bool Parser::ParseC() {
     int index = currentIndex;
     index++;
     if (tokens[index].GetValue() == "begin") {
-        return true;
+        currentIndex = index;
+        if (!ParseC1()) CreateException(currentIndex);
+        index = currentIndex;
+        if (tokens[index].GetValue() == "end") {
+            index++;
+            if (tokens[index].GetValue() == ".") {
+                return true;
+            } else {
+                CreateException(index);
+            }
+        } else {
+            CreateException(index);
+        }
     } else {
-        CreateException();
+        CreateException(index);
     }
 }
 
-bool Parser::ParseB4() {
+bool Parser::ParseB2() {
     int index = currentIndex;
     index++;
     if (tokens[index].GetType() == "IDENT") {
+        CreateIdent(tokens[index]);
         currentIndex = index;
-        ParseB1();
+        if (!ParseB1()) CreateException(currentIndex);
+        else {
+            return true;
+        }
     } else {
-        if (ParseC()) {
+        if (ParseA1()) {
             return true;
         } else {
             return false;
@@ -49,99 +122,45 @@ bool Parser::ParseB4() {
     return true;
 }
 
-bool Parser::ParseB3() {
-    int index = currentIndex;
-    index++;
-    if (tokens[index].GetValue() == ",") {
-        index++;
-        if (tokens[index].GetType() == "IDENT")  {
-            currentIndex = index;
-            ParseB3();
-        } else {
-            CreateException();
-        }
-    } else {
-        if (tokens[index].GetValue() == ":") {
-            index++;
-            if (tokens[index].GetType() == "TYPE") {
-                index++;
-                if (tokens[index].GetValue() == ";") {
-                    currentIndex = index;
-                    ParseB4();
-                } else {
-                    CreateException();
-                }
-            } else {
-                CreateException();
-            }
-        } else {
-            CreateException();
-        }
-    }
-}
-
-bool Parser::ParseB2() {
-    int index = currentIndex;
-    index++;
-    if (tokens[index].GetValue() == ":=") {
-        index++;
-        if (tokens[index].GetType() == "NUMBER") { //VALUE
-            index++;
-            if (tokens[index].GetValue() == ";") {
-                currentIndex = index;
-                ParseB4();
-            } else {
-                CreateException();
-            }
-        } else {
-            CreateException();
-        }
-    } else {
-        if (tokens[index].GetValue() == ":") {
-            index++;
-            if (tokens[index].GetType() == "TYPE") {
-                index++;
-                if (tokens[index].GetValue() == ":=") {
-                    index++;
-                    if (tokens[index].GetType() == "NUMBER") { //VALUE
-                        index++;
-                        if (tokens[index].GetValue() == ";") {
-                            currentIndex = index;
-                            ParseB4();
-                        } else {
-                            CreateException();
-                        }
-                    } else {
-                        CreateException();
-                    }
-
-                } else {
-                    CreateException();
-                }
-            } else {
-                CreateException();
-            }
-        } else {
-            CreateException();
-        }
-    }
-}
-
 bool Parser::ParseB1() {
     int index = currentIndex;
     index++;
     if (tokens[index].GetValue() == ",") {
         index++;
-        if (tokens[index].GetType() == "IDENT") {
+        if (tokens[index].GetType() == "IDENT")  {
+            CreateIdent(tokens[index]);
             currentIndex = index;
-            ParseB3();
+            if (!ParseB1()) CreateException(currentIndex);
+            else {
+                return true;
+            }
         } else {
-            CreateException();
+            CreateException(index);
         }
     } else {
-        ParseB2();
+        if (tokens[index].GetValue() == ":") {
+            index++;
+            if (tokens[index].GetType() == "TYPE") {
+                idents[idents.size()-1].SetType(tokens[index].GetValue());
+                index++;
+                if (tokens[index].GetValue() == ";") {
+                    currentIndex = index;
+                    if (!ParseB2()) CreateException(currentIndex);
+                    else {
+                        return true;
+                    }
+                } else {
+                    CreateException(index);
+                }
+            } else {
+                CreateException(index);
+            }
+        } else {
+            CreateException(index);
+        }
     }
 }
+
 
 
 bool Parser::ParseB() {
@@ -150,8 +169,12 @@ bool Parser::ParseB() {
     if (tokens[index].GetValue() == "var") {
         index++;
         if (tokens[index].GetType() == "IDENT") {
+            CreateIdent(tokens[index]);
             currentIndex = index;
-            ParseB1();
+            if (!ParseB1()) CreateException(currentIndex);
+            else {
+                return true;
+            }
         }
     } else {
         return false;
@@ -162,7 +185,7 @@ bool Parser::ParseB() {
 bool Parser::ParseA1() {
     if (!ParseB()) {
         if (!ParseC()) {
-            CreateException();
+            CreateException(currentIndex);
         }
     }
     return true;
@@ -174,21 +197,30 @@ bool Parser::ParseA() {
     if (tokens[currentIndex].GetValue() == "program") {
         currentIndex++;
         if (tokens[currentIndex].GetType() == "IDENT") {
+            CreateIdent(tokens[currentIndex]);
             currentIndex++;
             if (tokens[currentIndex].GetValue() == ";") {
-                ParseA1();
+                if (!ParseA1()) CreateException(currentIndex);
+                else {
+                    return true;
+                }
             } else {
-                CreateException();
+                CreateException(currentIndex);
             }
         } else {
-            CreateException();
+            CreateException(currentIndex);
         }
-    } else ParseA1();
+    } else {
+        if (!ParseA1()) CreateException(currentIndex);
+        else {
+            return true;
+        }
+    }
 }
 
 bool Parser::Parse() {
     try {
-        ParseA();
+        if (!ParseA()) CreateException(currentIndex);
     } catch (const char* e) {
         cout << e << endl;
         cout << currentIndex << endl;

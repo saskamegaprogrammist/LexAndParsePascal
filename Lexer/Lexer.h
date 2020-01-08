@@ -21,6 +21,8 @@ private:
     vector<Token> operators;
     vector<Token> operations;
     vector<Token> numbers;
+    vector<Token> booleans;
+    vector<Token> strings;
     vector<Token> types;
     vector<Token> tokens;
     vector<ParseToken> parseTokens;
@@ -34,6 +36,8 @@ private:
     bool CheckOperation(int i);
     bool CheckIdent(int i);
     bool CheckNumber(int i);
+    bool CheckString(int i);
+    bool CheckBoolean(int i);
     bool CheckLetter(const char c);
     bool CheckDigit(const char d);
 public:
@@ -45,6 +49,8 @@ public:
     vector<Token> GetTokens();
     vector<ParseToken> GetParseTokens();
     vector<Token> GetNumbers();
+    vector<Token> GetStrings();
+    vector<Token> GetBooleans();
     vector<Token> GetTypes();
     vector<Token> GetOperators();
     vector<Token> GetOperations();
