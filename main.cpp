@@ -6,10 +6,13 @@ using namespace std;
 
 const string testProgramm = "program HelloWorld;\n"
                             "var\n"
-                            "        m: integer ;\n"
-                            "        n: string ;\n"
+                            "        m, n: integer ;\n"
+                            "        t: string ;\n"
+                            "        r: char ;\n"
                             "begin\n"
-                            "m:=2*n;\n"
+                            "m:= 7 mod (+2);\n"
+                            "r:= 'h';\n"
+                            "z:= 'hello' + 'hiii' + r;\n"
                             "end.";
 
 
@@ -28,21 +31,30 @@ int main() {
         for (int i = 0; i < tokens.size(); i++) {
             std::cout << tokens[i].GetValue() << " " << tokens[i].GetNumber() << std::endl;
         }
-        vector<Token> operators = lexer.GetOperators();
-        for (int i = 0; i < operators.size(); i++) {
-            std::cout << operators[i].GetValue() << " " << operators[i].GetNumber() << std::endl;
+//        vector<Token> operators = lexer.GetOperators();
+//        for (int i = 0; i < operators.size(); i++) {
+//            std::cout << operators[i].GetValue() << " " << operators[i].GetNumber() << std::endl;
+//        }
+//        vector<Token> operations = lexer.GetOperations();
+//        for (int i = 0; i < operations.size(); i++) {
+//            std::cout << operations[i].GetValue() << " " << operations[i].GetNumber() << std::endl;
+//        }
+//        vector<Token> strings = lexer.GetStrings();
+//        for (int i = 0; i < strings.size(); i++) {
+//            std::cout << strings[i].GetValue() << " " << strings[i].GetNumber() << std::endl;
+//        }
+        vector<ParseToken> parseTokens = lexer.GetParseTokens();
+        for (int i = 0; i < parseTokens.size(); i++) {
+            std::cout << parseTokens[i].GetNumber() << " " << parseTokens[i].GetValue() << " " << parseTokens[i].GetType() << std::endl;
         }
-        vector<Token> operations = lexer.GetOperations();
-        for (int i = 0; i < operations.size(); i++) {
-            std::cout << operations[i].GetValue() << " " << operations[i].GetNumber() << std::endl;
-        }
-        vector<Token> strings = lexer.GetStrings();
-        for (int i = 0; i < strings.size(); i++) {
-            std::cout << strings[i].GetValue() << " " << strings[i].GetNumber() << std::endl;
-        }
+        parser.SetTokens(parseTokens);
+        parser.Parse();
+//    vector<Ident> idents = parser.GetIdents();
+//    for (int i = 0; i < idents.size(); i++) {
+//        std::cout << idents[i].GetValue() << " " << idents[i].GetNumber() << " " << idents[i].GetType()<< " " << idents[i].GetName() << std::endl;
+//    }
     }
-    parser.SetTokens(lexer.GetParseTokens());
-    parser.Parse();
+
     return 0;
 }
 

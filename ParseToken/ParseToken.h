@@ -11,11 +11,13 @@ using namespace std;
 
 class ParseToken {
 private:
+    int number;
     string value;
     string type;
 public:
     ParseToken() = default;
-    ParseToken(const string value, const string type);
+    ParseToken(const int number, const string value, const string type);
+    int GetNumber();
     string GetValue();
     string GetType();
 };

@@ -59,7 +59,7 @@ bool Lexer::CheckType(int index) {
         types.push_back(token);
         Token token_n = Token("TYPE", types.size()-1);
         tokens.push_back(token_n);
-        ParseToken token_p = ParseToken(type, "TYPE");
+        ParseToken token_p = ParseToken(parseTokens.size(), type, "TYPE");
         parseTokens.push_back(token_p);
         currentIndex = i;
         return true;
@@ -83,7 +83,7 @@ bool Lexer::CheckKeyword(int index) {
         keywords.push_back(token);
         Token token_n = Token("KEYWORD", keywords.size()-1);
         tokens.push_back(token_n);
-        ParseToken token_p = ParseToken(keyword, "KEYWORD");
+        ParseToken token_p = ParseToken(parseTokens.size(), keyword, "KEYWORD");
         parseTokens.push_back(token_p);
         currentIndex = i;
         return true;
@@ -128,7 +128,7 @@ bool Lexer::CheckOperator(int index) {
         operators.push_back(token);
         Token token_n = Token("OPERATOR", operators.size()-1);
         tokens.push_back(token_n);
-        ParseToken token_p = ParseToken(trueop, "OPERATOR");
+        ParseToken token_p = ParseToken(parseTokens.size(), trueop, "OPERATOR");
         parseTokens.push_back(token_p);
         return true;
     } else {
@@ -150,7 +150,7 @@ bool Lexer::CheckIdent(int index) {
     idents.push_back(token);
     Token token_n = Token("IDENT", idents.size()-1);
     tokens.push_back(token_n);
-    ParseToken token_p = ParseToken(ident, "IDENT");
+    ParseToken token_p = ParseToken(parseTokens.size(), ident, "IDENT");
     parseTokens.push_back(token_p);
     currentIndex = i;
     return true;
@@ -176,7 +176,7 @@ bool Lexer::CheckString(int index) {
         strings.push_back(token);
         Token token_n = Token("STRING", strings.size()-1);
         tokens.push_back(token_n);
-        ParseToken token_p = ParseToken(string, "STRING");
+        ParseToken token_p = ParseToken(parseTokens.size(), string, "STRING");
         parseTokens.push_back(token_p);
         currentIndex = i;
         return true;
@@ -198,7 +198,7 @@ bool Lexer::CheckBoolean(int index) {
         booleans.push_back(token);
         Token token_n = Token("BOOLEAN", booleans.size()-1);
         tokens.push_back(token_n);
-        ParseToken token_p = ParseToken(boolean, "BOOLEAN");
+        ParseToken token_p = ParseToken(parseTokens.size(), boolean, "BOOLEAN");
         parseTokens.push_back(token_p);
         currentIndex = i;
         return true;
@@ -220,7 +220,7 @@ bool Lexer::CheckNumber(int index) {
     numbers.push_back(token);
     Token token_n = Token("NUMBER", numbers.size()-1);
     tokens.push_back(token_n);
-    ParseToken token_p = ParseToken(number, "NUMBER");
+    ParseToken token_p = ParseToken(parseTokens.size(), number, "NUMBER");
     parseTokens.push_back(token_p);
     currentIndex = i;
     return true;
@@ -251,7 +251,7 @@ bool Lexer::CheckOperation(int index) {
         operations.push_back(token);
         Token token_n = Token("OPERATION", operations.size()-1);
         tokens.push_back(token_n);
-        ParseToken token_p = ParseToken(trueop, "OPERATION");
+        ParseToken token_p = ParseToken(parseTokens.size(), trueop, "OPERATION");
         parseTokens.push_back(token_p);
         return true;
     } else {

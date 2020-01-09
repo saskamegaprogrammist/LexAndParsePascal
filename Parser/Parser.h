@@ -30,6 +30,11 @@ private:
     bool ParseE2();
     bool ParseE3();
     bool ParseE4();
+    bool ParseF();
+    bool ParseF1();
+    bool ParseF2();
+    bool ParseG();
+    bool ParseH();
     void CreateException(int& index);
     void CreateIdent(ParseToken& ident);
     bool CheckIdentExists(string name);
@@ -37,12 +42,13 @@ private:
     bool CheckStringType(string type);
     bool CheckNumType(string type);
     bool CheckBooleanType(string type);
+    bool CheckCharType(string type);
 
 
 public:
     Parser() = default;
     void SetTokens(vector<ParseToken> tokens);
-    void GetIdents();
+    vector<Ident> GetIdents();
     bool Parse();
 };
 

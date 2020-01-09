@@ -4,7 +4,8 @@
 
 #include "ParseToken.h"
 
-ParseToken::ParseToken(const string value, const string type) {
+ParseToken::ParseToken(const int number, const string value, const string type) {
+    this->number = number;
     this->type = type;
     this->value = value;
 }
@@ -15,4 +16,8 @@ string ParseToken::GetValue() {
 
 string ParseToken::GetType() {
     return this->type;
+}
+
+int ParseToken::GetNumber() {
+    return this->number;
 }
