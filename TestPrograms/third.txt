@@ -1,0 +1,15 @@
+program third;
+var m, n, i: integer ; //this is var block
+    t: string ;
+    r: char ;
+    s: boolean;
+begin { start of program}
+    m:= 15 mod (+4);
+    r:= 'h';
+    for i:= 1 to m do
+    begin (*for block begin*)
+    s := (1 <> 1) or true;
+    if (not s) then
+    s:=false;
+    end;
+end.

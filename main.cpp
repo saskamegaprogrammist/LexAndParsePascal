@@ -3,7 +3,7 @@
 #include "Lexer/Lexer.h"
 #include "Parser/Parser.h"
 #include "Token/Token.h"
-#define FILE_NAME_IN "../TestPrograms/second.txt"
+#define FILE_NAME_IN "../TestPrograms/third.txt"
 using namespace std;
 
 int main() {
@@ -34,6 +34,10 @@ int main() {
         vector<Token> strings = lexer.GetStrings();
         for (int i = 0; i < strings.size(); i++) {
             std::cout << strings[i].GetValue() << " " << strings[i].GetNumber() << std::endl;
+        }
+        vector<Token> ids = lexer.GetIdents();
+        for (int i = 0; i < ids.size(); i++) {
+            std::cout << ids[i].GetValue() << " " << ids[i].GetNumber() << std::endl;
         }
         vector<ParseToken> parseTokens = lexer.GetParseTokens();
         for (int i = 0; i < parseTokens.size(); i++) {
