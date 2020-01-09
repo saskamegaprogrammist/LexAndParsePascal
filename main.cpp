@@ -6,9 +6,11 @@ using namespace std;
 
 const string testProgramm = "program HelloWorld;\n"
                             "var\n"
+                            "        m: integer ;\n"
                             "        n: string ;\n"
-                            "        m: char;"
-                            "begin\n";
+                            "begin\n"
+                            "m:=2*n;\n"
+                            "end.";
 
 
 int main() {

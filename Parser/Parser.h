@@ -14,6 +14,7 @@ using namespace std;
 class Parser {
 private:
     int currentIndex;
+    Ident currentIdent;
     vector<ParseToken> tokens;
     vector<Ident> idents;
     bool ParseA();
@@ -31,6 +32,12 @@ private:
     bool ParseE4();
     void CreateException(int& index);
     void CreateIdent(ParseToken& ident);
+    bool CheckIdentExists(string name);
+    Ident* GetIdent(string name);
+    bool CheckStringType(string type);
+    bool CheckNumType(string type);
+    bool CheckBooleanType(string type);
+
 
 public:
     Parser() = default;
