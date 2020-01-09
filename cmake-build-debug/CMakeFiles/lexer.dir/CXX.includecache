@@ -35,6 +35,8 @@ string
 -
 
 /home/alexis/CLionProjects/LexAndParsePascal/main.cpp
+fstream
+-
 iostream
 -
 Lexer/Lexer.h

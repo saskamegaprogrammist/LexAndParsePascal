@@ -17,8 +17,10 @@
 // B1 : <,> <IDENT> B1 | <:> <TYPE> <;> B2
 // B2 :  <IDENT> B1 | A1
 // C : <begin> C1 <end> <.>
-// C1 : <begin> C1 <end> <;> | D | I
-// D : <IDENT/number/> <:=> E <;> D | <IDENT/string/> <:=> F <;> D | <IDENT/boolean/> <:=> G <;> D | <IDENT/char/> <:=> H <;> D | eps
+// C1 : <begin> C1 <end> <;> C1 | D <;> C1 | I C1 | J C1|  <;> C1 | eps
+// C2 : <begin> C1 <end> | D <;> | I | J |<;> | eps
+// D : <IDENT/number/> D1 E | <IDENT/string/> <:=> F | <IDENT/boolean/> <:=> G  | <IDENT/char/> <:=> H
+// D1 : <:=> | <+=> | <-=> | </=>
 // E : E1 E2
 // E1 : E3 E4
 // E2 : <+> E | <-> E | eps
@@ -27,20 +29,21 @@
 // F : F1 F2
 // F1: (F) | <STRING> | <IDENT/string or char/>
 // F2 : <+> F | eps
-// G : (G) | <BOOLEAN> | <IDENT/boolean/>
+// G : G1 G4 G5
+// G1 : (G) | not G | G3 | E G2
+// G2 : = E | <> E | > E | < E | >= E | <= E
+// G3 : <BOOLEAN> | <IDENT/boolean/>
+// G4 : and G1 G4 | eps
+// G5 : or G | eps
 // H : (H) | <STRING/length==1/> | <IDENT/char/>
 // I : <for> I1
-// I1 : <IDENT/number/> <:=> <NUMBER> I2
-// I2 : <to> <NUMBER> <do> | <downto> <NUMBER> <do>
-
-//<E> ::= <T> <E’>.
-//<E’> ::= + <T> <E’> | - <T> <E’> | .
-//<T> ::= <F> <T’>.
-//<T’> ::= * <F> <T’> | / <F> <T’> | .
-//<F> ::= <number> | <var> | ( <E> ) | - <F>.
-
-
-
+// I1 : <IDENT/number/> <:=> I4 I2 | <IDENT/char/> <:=> I5 I3
+// I2 : <to> I4 <do> C2 | <downto> I4 <do> C2
+// I3 : <to> I5 <do> C2 | <downto> I5 <do> C2
+// I4 : <NUMBER> | <IDENT/number/>
+// I5 :  <STRING/length==1/> | <IDENT/char/>
+// J : <if> G <then> C2 J1
+// J1 : <else> C2 | eps
 
 const vector<string> NUMTYPES = {"shortint", "smallint", "integer", "longint", "int64",  "real",
                               "double", "decimal"};
@@ -91,6 +94,188 @@ void Parser::CreateIdent(ParseToken &token) {
     idents.push_back(ident);
 }
 
+bool Parser::ParseJ1() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1 && tokens[index].GetValue() == "else") {
+        currentIndex = index;
+        if (ParseC2()) {
+            return true;
+        } else CreateException(currentIndex);
+    } else {
+        return true;
+    }
+}
+
+bool Parser::ParseJ() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1 && tokens[index].GetValue() == "if") {
+        currentIndex = index;
+        if (ParseG()) {
+            index = currentIndex;
+            index++;
+            if (tokens.size() >= currentIndex+1 && tokens[index].GetValue() == "then") {
+                currentIndex = index;
+                if (ParseC2()) {
+                    return ParseJ1();
+                } else CreateException(currentIndex);
+            } else CreateException(index);
+        } else CreateException(index);
+    }
+    else return false;
+}
+
+bool Parser::ParseI5() {
+    if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetType() == "STRING" && tokens[index].GetValue().length() == 3) {
+        currentIndex = index;
+        return true;
+    } else {
+        if (tokens[index].GetType() == "IDENT") {
+            Ident* ident = GetIdent(tokens[index].GetValue());
+            if (ident != NULL) {
+                if (CheckCharType(ident->GetType())) {
+                    currentIndex=index;
+                    return true;
+                } else CreateException(index);
+            } else CreateException(index);
+        } else CreateException(index);
+    }
+}
+
+bool Parser::ParseI4() {
+    if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetType() == "NUMBER") {
+        currentIndex = index;
+        return true;
+    } else {
+        if (tokens[index].GetType() == "IDENT") {
+            Ident* ident = GetIdent(tokens[index].GetValue());
+            if (ident != NULL) {
+                if (CheckNumType(ident->GetType())) {
+                    currentIndex=index;
+                    return true;
+                } else CreateException(index);
+            } else CreateException(index);
+        } else CreateException(index);
+    }
+}
+
+bool Parser::ParseI3() {
+    if (tokens.size() < currentIndex+1+3) CreateException(currentIndex);
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetValue() == "to") {
+        currentIndex = index;
+        if (ParseI5()) {
+            currentIndex = index;
+            index++;
+            if (tokens[index].GetValue() == "do") {
+                currentIndex = index;
+                if (ParseC2()) return true;
+                else CreateException(currentIndex);
+            } else CreateException(index);
+        } else CreateException(currentIndex);
+    } else {
+        if (tokens[index].GetValue() == "downto") {
+            currentIndex = index;
+            if (ParseI5()) {
+                currentIndex = index;
+                index++;
+                if (tokens[index].GetValue() == "do") {
+                    currentIndex = index;
+                    if (ParseC2()) return true;
+                    else CreateException(currentIndex);
+                } else CreateException(index);
+            } else CreateException(currentIndex);
+        }
+    }
+    return false;
+}
+
+bool Parser::ParseI2() {
+    if (tokens.size() < currentIndex+1+3) CreateException(currentIndex);
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetValue() == "to") {
+        currentIndex = index;
+        if (ParseI4()) {
+            index = currentIndex;
+            index++;
+            if (tokens[index].GetValue() == "do") {
+                currentIndex = index;
+                if (ParseC2()) return true;
+                else CreateException(currentIndex);
+            } else CreateException(index);
+        } else CreateException(currentIndex);
+    } else {
+        if (tokens[index].GetValue() == "downto") {
+            currentIndex = index;
+            if (ParseI4()) {
+                currentIndex = index;
+                index++;
+                if (tokens[index].GetValue() == "do") {
+                    currentIndex = index;
+                    if (ParseC2()) return true;
+                    else CreateException(currentIndex);
+                } else CreateException(index);
+            } else CreateException(currentIndex);
+        }
+    }
+    return false;
+}
+
+bool Parser::ParseI1() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1+3 && tokens[index].GetType() == "IDENT") {
+        if (CheckIdentExists(tokens[index].GetValue())) {
+            if (CheckNumType(currentIdent.GetType())) {
+                index++;
+                if (tokens[index].GetValue() == ":=") {
+                    currentIndex = index;
+                    if (ParseI4()) {
+                        if (ParseI2()) return true;
+                        else CreateException(currentIndex);
+                    } else CreateException(index);
+                } else {
+                    CreateException(index);
+                }
+            } else {
+                if (CheckCharType(currentIdent.GetType())) {
+                    index++;
+                    if (tokens[index].GetValue() == ":=") {
+                        currentIndex = index;
+                        if (ParseI5()) {
+                            if (ParseI3()) return true;
+                            else CreateException(currentIndex);
+                        } else CreateException(index);
+                    } else CreateException(index);
+                } else CreateException(index);
+            }
+        } else {
+            CreateException(index);
+        }
+    }
+    else return false;
+}
+
+bool Parser::ParseI() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == "for") {
+        currentIndex = index;
+        if (ParseI1()) {
+            return true;
+        } else CreateException(index);
+    }
+    else return false;
+}
 
 bool Parser::ParseH() {
     if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
@@ -128,41 +313,116 @@ bool Parser::ParseH() {
     }
 }
 
+bool Parser::ParseG5() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == "or") {
+        currentIndex = index;
+        return ParseG();
+    } else {
+        return true;
+    }
+}
 
-bool Parser::ParseG() {
+bool Parser::ParseG4() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == "and") {
+        currentIndex = index;
+        if (!ParseG1()) {
+            CreateException(currentIndex);
+        } else {
+            return ParseG4();
+        }
+    } else {
+        return true;
+    }
+}
+
+bool Parser::ParseG3() {
     if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
     int index = currentIndex;
     index++;
-    if (tokens[index].GetValue() == "(") {
+    if (tokens[index].GetType() == "BOOLEAN") {
+        currentIndex = index;
+        return true;
+    } else {
+        if (tokens[index].GetType() == "IDENT") {
+            Ident* ident = GetIdent(tokens[index].GetValue());
+            if (ident != NULL) {
+                if (CheckBooleanType(ident->GetType())) {
+                    currentIndex=index;
+                    return true;
+                } else {
+                    return false;
+                }
+            } else CreateException(index);
+        } else {
+            return false;
+        }
+    }
+    return false;
+};
+
+bool Parser::ParseG2() {
+    if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetValue() == "=" || tokens[index].GetValue() == "<>" || tokens[index].GetValue() == ">"
+        || tokens[index].GetValue() == "<" || tokens[index].GetValue() == "<=" || tokens[index].GetValue() == ">=") {
+        currentIndex = index;
+        if (ParseE()) {
+            return true;
+        } else CreateException(currentIndex);
+    } else CreateException(index);
+}
+
+bool Parser::ParseG1() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == "not") {
         currentIndex = index;
         if (!ParseG()) {
             CreateException(currentIndex);
         } else {
-            if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
-            index=currentIndex;
-            index++;
-            if (tokens[index].GetValue() == ")") {
-                currentIndex = index;
-                return true;
-            } else CreateException(index);
-        }
-
-    } else {
-        if (tokens[index].GetType() == "BOOLEAN") {
-            currentIndex = index;
             return true;
-        } else {
-            if (tokens[index].GetType() == "IDENT") {
-                Ident* ident = GetIdent(tokens[index].GetValue());
-                if (ident != NULL) {
-                    if (CheckBooleanType(ident->GetType())) {
-                        currentIndex=index;
-                        return true;
-                    } else CreateException(index);
+        }
+    } else {
+        if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == "(") {
+            currentIndex = index;
+            if (!ParseG()) {
+                CreateException(currentIndex);
+            } else {
+                if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
+                index=currentIndex;
+                index++;
+                if (tokens[index].GetValue() == ")") {
+                    currentIndex = index;
+                    return true;
                 } else CreateException(index);
-            } else CreateException(index);
+            }
+        } else {
+            if (ParseG3()) {
+                return true;
+            } else {
+                if (ParseE()) {
+                    if (ParseG2()) {
+                        return true;
+                    } else CreateException(currentIndex);
+                } else CreateException(currentIndex);
+            }
         }
     }
+}
+
+bool Parser::ParseG() {
+    if (!ParseG1()) {
+        CreateException(currentIndex);
+    } else {
+        ParseG4();
+        ParseG5();
+    }
+    return true;
 }
 
 
@@ -363,41 +623,37 @@ bool Parser::ParseE() {
     return true;
 }
 
+bool Parser::ParseD1() {
+    if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
+    int index = currentIndex;
+    index++;
+    if (tokens[index].GetValue() == ":=" || tokens[index].GetValue() == "+=" ||
+            tokens[index].GetValue() == "-=" || tokens[index].GetValue() == "*=" || tokens[index].GetValue() == "/=") {
+        currentIndex = index;
+        return true;
+    } else CreateException(index);
+}
+
 bool Parser::ParseD() {
     int index = currentIndex;
     index++;
     if (tokens.size() >= currentIndex+1+2 && tokens[index].GetType() == "IDENT") {
        if (CheckIdentExists(tokens[index].GetValue())) {
            if (CheckNumType(currentIdent.GetType())) {
-               index++;
-               if (tokens[index].GetValue() == ":=") {
-                   currentIndex = index;
+               currentIndex = index;
+               if (ParseD1()) {
                    if (ParseE()) {
-                       if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
-                       index = currentIndex;
-                       index++;
-                       if (tokens[index].GetValue() == ";") {
-                           currentIndex = index;
-                           return ParseD();
-                       } else CreateException(index);
+                       return true;
                    }
                    else CreateException(currentIndex);
-               } else {
-                   CreateException(index);
-               }
+               } CreateException(currentIndex);
            } else {
                if (CheckStringType(currentIdent.GetType())) {
                    index++;
                    if (tokens[index].GetValue() == ":=") {
                        currentIndex = index;
                        if (ParseF()) {
-                           if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
-                           index = currentIndex;
-                           index++;
-                           if (tokens[index].GetValue() == ";") {
-                               currentIndex = index;
-                               return ParseD();
-                           } else CreateException(index);
+                           return true;
                        }
                        else CreateException(currentIndex);
                    } else CreateException(index);
@@ -407,13 +663,7 @@ bool Parser::ParseD() {
                        if (tokens[index].GetValue() == ":=") {
                            currentIndex = index;
                            if (ParseG()) {
-                               if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
-                               index = currentIndex;
-                               index++;
-                               if (tokens[index].GetValue() == ";") {
-                                   currentIndex = index;
-                                   return ParseD();
-                               } else CreateException(index);
+                               return true;
                            }
                            else CreateException(currentIndex);
                        } else CreateException(index);
@@ -423,13 +673,7 @@ bool Parser::ParseD() {
                            if (tokens[index].GetValue() == ":=") {
                                currentIndex = index;
                                if (ParseH()) {
-                                   if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
-                                   index = currentIndex;
-                                   index++;
-                                   if (tokens[index].GetValue() == ";") {
-                                       currentIndex = index;
-                                       return ParseD();
-                                   } else CreateException(index);
+                                   return true;
                                }
                                else CreateException(currentIndex);
                            } else CreateException(index);
@@ -442,7 +686,55 @@ bool Parser::ParseD() {
            CreateException(index);
        }
     }
-    else return true;
+    else return false;
+}
+
+bool Parser::ParseC2() {
+    int index = currentIndex;
+    index++;
+    if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == "begin") {
+        currentIndex = index;
+        if (!ParseC1()) CreateException(currentIndex);
+        if (tokens.size() < currentIndex+1+2) CreateException(currentIndex);
+        index = currentIndex;
+        index++;
+        if (tokens[index].GetValue() == "end") {
+            index++;
+            if (tokens[index].GetValue() == ";") {
+                currentIndex = index;
+                return true;
+            } else {
+                CreateException(index);
+            }
+        } else {
+            CreateException(index);
+        }
+    } else {
+        if (ParseD()) {
+            if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
+            index = currentIndex;
+            index++;
+            if (tokens[index].GetValue() == ";") {
+                currentIndex = index;
+                return true;
+            } else CreateException(index);
+        } else {
+            if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == ";") {
+                currentIndex = index;
+                return true;
+            } else {
+                if (ParseI()) {
+                    return true;
+                } else {
+                    if (ParseJ()) {
+                        return true;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool Parser::ParseC1() {
@@ -457,7 +749,8 @@ bool Parser::ParseC1() {
         if (tokens[index].GetValue() == "end") {
             index++;
             if (tokens[index].GetValue() == ";") {
-                return true;
+                currentIndex = index;
+                return ParseC1();
             } else {
                 CreateException(index);
             }
@@ -465,9 +758,29 @@ bool Parser::ParseC1() {
             CreateException(index);
         }
     } else {
-        if (!ParseD()) CreateException(currentIndex);
-        else {
-            return true;
+        if (ParseD()) {
+            if (tokens.size() < currentIndex+1+1) CreateException(currentIndex);
+            index = currentIndex;
+            index++;
+            if (tokens[index].GetValue() == ";") {
+                currentIndex = index;
+                return ParseC1();
+            } else CreateException(index);
+        } else {
+            if (tokens.size() >= currentIndex+1+1 && tokens[index].GetValue() == ";") {
+                currentIndex = index;
+                return ParseC1();
+            } else {
+                if (ParseI()) {
+                    return ParseC1();
+                } else {
+                    if (ParseJ()) {
+                        return ParseC1();
+                    } else {
+                        return true;
+                    }
+                }
+            }
         }
     }
 }
